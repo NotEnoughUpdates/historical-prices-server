@@ -11,6 +11,4 @@ fun Double.roundToDecimals(decimals: Int): Double {
     return round(this * multiplier) / multiplier
 }
 
-/*fun <U> CompletableFuture.supplyAsync(executor: Executor, supplier: Supplier<U>): CompletableFuture<U> {
-
-}*/
+fun env(variable: String) = System.getenv(variable)

@@ -1,12 +1,12 @@
 package dev.dediamondpro.priceserver
 
-import com.github.benmanes.caffeine.cache.AsyncLoadingCache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
 import dev.dediamondpro.priceserver.database.DatabaseHandler
 import dev.dediamondpro.priceserver.items.ItemFetcher
 import dev.dediamondpro.priceserver.items.ItemResponse
 import dev.dediamondpro.priceserver.utils.ConfigData
+import dev.dediamondpro.priceserver.utils.env
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -20,7 +20,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.decodeFromStream
 import java.io.File
 import java.util.*
-import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
 
@@ -33,9 +32,20 @@ fun main() {
 
 @OptIn(ExperimentalSerializationApi::class)
 val config: ConfigData by lazy {
-    File("config.json").inputStream().use {
+    val configFile = File("config.json")
+    if (configFile.exists()) File("config.json").inputStream().use {
         ItemFetcher.json.decodeFromStream(it)
-    }
+    } else ConfigData(
+        8080,
+        "postgres:5432",
+        env("POSTGRES_USER"),
+        env("POSTGRES_USER"),
+        env("POSTGRES_PASSWORD"),
+        2,
+        60,
+        30,
+        "07:00"
+    )
 }
 
 private val dataCache: LoadingCache<String, Optional<ItemResponse>> = Caffeine.newBuilder()

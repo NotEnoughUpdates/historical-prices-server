@@ -1,0 +1,25 @@
+version: '3.5'
+
+services:
+  price-server:
+    build: .
+    ports:
+      - '8080:8080'
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    links:
+      - postgres
+  postgres:
+    image: postgres:15.2
+    environment :
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    restart: unless-stopped
+
+volumes:
+  postgres:
