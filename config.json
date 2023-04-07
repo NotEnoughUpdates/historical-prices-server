@@ -1,0 +1,11 @@
+{
+  "port": 8080,
+  "databaseIp": "127.0.0.1:5432",
+  "databaseName": "neu",
+  "databaseUser": "neu",
+  "databasePassword": "neu",
+  "fetchTime": 2,
+  "deleteTime": 60,
+  "retentionTime": 30,
+  "clusterTime": "07:00"
+}
