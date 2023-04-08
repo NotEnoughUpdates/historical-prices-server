@@ -12,10 +12,10 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.20"
 }
 
-group = "dev.dediamondpro"
+group = "org.notenoughupdates"
 version = "0.0.1"
 application {
-    mainClass.set("dev.dediamondpro.priceserver.ApplicationKt")
+    mainClass.set("org.notenoughupdates.priceserver.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")

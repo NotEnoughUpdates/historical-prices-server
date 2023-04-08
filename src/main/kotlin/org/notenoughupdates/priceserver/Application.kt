@@ -1,12 +1,12 @@
-package dev.dediamondpro.priceserver
+package org.notenoughupdates.priceserver
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
-import dev.dediamondpro.priceserver.database.DatabaseHandler
-import dev.dediamondpro.priceserver.items.ItemFetcher
-import dev.dediamondpro.priceserver.items.ItemResponse
-import dev.dediamondpro.priceserver.utils.ConfigData
-import dev.dediamondpro.priceserver.utils.env
+import org.notenoughupdates.priceserver.database.DatabaseHandler
+import org.notenoughupdates.priceserver.items.ItemFetcher
+import org.notenoughupdates.priceserver.items.ItemResponse
+import org.notenoughupdates.priceserver.utils.ConfigData
+import org.notenoughupdates.priceserver.utils.env
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*

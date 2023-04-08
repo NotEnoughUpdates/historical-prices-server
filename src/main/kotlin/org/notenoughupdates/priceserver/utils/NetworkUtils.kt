@@ -1,4 +1,4 @@
-package dev.dediamondpro.priceserver.utils
+package org.notenoughupdates.priceserver.utils
 
 import java.io.InputStream
 import java.net.URL

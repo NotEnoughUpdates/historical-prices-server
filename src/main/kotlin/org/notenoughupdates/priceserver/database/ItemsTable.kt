@@ -1,4 +1,4 @@
-package dev.dediamondpro.priceserver.database
+package org.notenoughupdates.priceserver.database
 
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp

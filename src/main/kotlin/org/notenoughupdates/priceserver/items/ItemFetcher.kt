@@ -1,9 +1,9 @@
-package dev.dediamondpro.priceserver.items
+package org.notenoughupdates.priceserver.items
 
-import dev.dediamondpro.priceserver.config
-import dev.dediamondpro.priceserver.database.ItemsTable
-import dev.dediamondpro.priceserver.utils.NetworkUtils
-import dev.dediamondpro.priceserver.utils.roundToDecimals
+import org.notenoughupdates.priceserver.config
+import org.notenoughupdates.priceserver.database.ItemsTable
+import org.notenoughupdates.priceserver.utils.NetworkUtils
+import org.notenoughupdates.priceserver.utils.roundToDecimals
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.ExperimentalSerializationApi

@@ -1,4 +1,4 @@
-package dev.dediamondpro.priceserver.items
+package org.notenoughupdates.priceserver.items
 
 import kotlinx.serialization.Serializable
 

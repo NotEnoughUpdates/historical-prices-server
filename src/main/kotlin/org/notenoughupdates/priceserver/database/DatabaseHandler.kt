@@ -1,8 +1,8 @@
-package dev.dediamondpro.priceserver.database
+package org.notenoughupdates.priceserver.database
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import dev.dediamondpro.priceserver.config
+import org.notenoughupdates.priceserver.config
 import io.ktor.server.util.*
 import io.ktor.util.date.*
 import kotlinx.datetime.*
