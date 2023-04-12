@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   price-server:
-    image: ghcr.io/notenoughupdates/historical-prices-server:latest
+    image: ghcr.io/notenoughupdates/historical-prices-server:master
     ports:
       - '8080:8080'
     restart: unless-stopped
