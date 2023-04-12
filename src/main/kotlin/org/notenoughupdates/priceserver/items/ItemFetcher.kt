@@ -40,32 +40,40 @@ object ItemFetcher {
     fun initialize() {
         val timer = Timer()
         timer.scheduleAtFixedRate(0, config.fetchTime.minutes.inWholeMilliseconds) {
-            NetworkUtils.getGzipInputStream("https://moulberry.codes/lowestbin.json.gz").use { stream ->
-                val now = Clock.System.now()
-                val response: LowestBinResponse = json.decodeFromStream(stream)
-                transaction {
-                    ItemsTable.batchInsert(response.items) {
-                        this[ItemsTable.itemId] = it.first
-                        this[ItemsTable.time] = now
-                        this[ItemsTable.buyPrice] = it.second.roundToDecimals(1)
+            try {
+                NetworkUtils.getGzipInputStream("https://moulberry.codes/lowestbin.json.gz").use { stream ->
+                    val now = Clock.System.now()
+                    val response: LowestBinResponse = json.decodeFromStream(stream)
+                    transaction {
+                        ItemsTable.batchInsert(response.items) {
+                            this[ItemsTable.itemId] = it.first
+                            this[ItemsTable.time] = now
+                            this[ItemsTable.buyPrice] = it.second.roundToDecimals(1)
+                        }
                     }
+                    println("Added ${response.items.size} items from the auction house.")
                 }
-                println("Added ${response.items.size} items from the auction house.")
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-            NetworkUtils.getInputStream("https://api.hypixel.net/skyblock/bazaar").use { stream ->
-                val now = Clock.System.now()
-                val items = json.decodeFromStream<JsonObject>(stream)["products"]?.jsonObject?.values?.map {
-                    json.decodeFromJsonElement<QuickStatus>(it.jsonObject["quick_status"]!!)
-                }?.filter { it.hasData() } ?: return@use
-                transaction {
-                    ItemsTable.batchInsert(items) {
-                        this[ItemsTable.itemId] = transformHypixelBazaarToNEUItemId(it.productId)
-                        this[ItemsTable.time] = now
-                        this[ItemsTable.buyPrice] = it.buyPrice.roundToDecimals(1)
-                        this[ItemsTable.sellPrice] = it.sellPrice.roundToDecimals(1)
+            try {
+                NetworkUtils.getInputStream("https://api.hypixel.net/skyblock/bazaar").use { stream ->
+                    val now = Clock.System.now()
+                    val items = json.decodeFromStream<JsonObject>(stream)["products"]?.jsonObject?.values?.map {
+                        json.decodeFromJsonElement<QuickStatus>(it.jsonObject["quick_status"]!!)
+                    }?.filter { it.hasData() } ?: return@use
+                    transaction {
+                        ItemsTable.batchInsert(items) {
+                            this[ItemsTable.itemId] = transformHypixelBazaarToNEUItemId(it.productId)
+                            this[ItemsTable.time] = now
+                            this[ItemsTable.buyPrice] = it.buyPrice.roundToDecimals(1)
+                            this[ItemsTable.sellPrice] = it.sellPrice.roundToDecimals(1)
+                        }
                     }
+                    println("Added ${items.size} items from the bazaar.")
                 }
-                println("Added ${items.size} items from the bazaar.")
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
 
