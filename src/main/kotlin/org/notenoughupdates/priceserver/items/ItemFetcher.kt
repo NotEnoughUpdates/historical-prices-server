@@ -40,38 +40,46 @@ object ItemFetcher {
     fun initialize() {
         val timer = Timer()
         timer.scheduleAtFixedRate(0, config.fetchTime.minutes.inWholeMilliseconds) {
+            val items = mutableMapOf<String, ItemObject>()
             try {
                 NetworkUtils.getGzipInputStream("https://moulberry.codes/lowestbin.json.gz").use { stream ->
                     val now = Clock.System.now()
                     val response: LowestBinResponse = json.decodeFromStream(stream)
-                    transaction {
-                        ItemsTable.batchInsert(response.items) {
-                            this[ItemsTable.itemId] = it.first
-                            this[ItemsTable.time] = now
-                            this[ItemsTable.buyPrice] = it.second.roundToDecimals(1)
-                        }
-                    }
-                    println("Added ${response.items.size} items from the auction house.")
+                    items.putAll(response.items.associate {
+                        it.first to ItemObject(now, it.second)
+                    })
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            try { // Bazaar last, so it overwrites ah if needed for ah to bazaar transitions
+                NetworkUtils.getInputStream("https://api.hypixel.net/skyblock/bazaar").use { stream ->
+                    val response = json.decodeFromStream<JsonObject>(stream)
+                    val lastUpdated = response["lastUpdated"]!!.jsonPrimitive.long
+                    val bazaarItems = response["products"]?.jsonObject?.values?.map {
+                        json.decodeFromJsonElement<QuickStatus>(it.jsonObject["quick_status"]!!)
+                    }?.filter { it.hasData() } ?: return@use
+                    items.putAll(bazaarItems.associate {
+                        transformHypixelBazaarToNEUItemId(it.productId) to ItemObject(
+                            lastUpdated,
+                            it.buyPrice,
+                            it.sellPrice
+                        )
+                    })
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
             try {
-                NetworkUtils.getInputStream("https://api.hypixel.net/skyblock/bazaar").use { stream ->
-                    val now = Clock.System.now()
-                    val items = json.decodeFromStream<JsonObject>(stream)["products"]?.jsonObject?.values?.map {
-                        json.decodeFromJsonElement<QuickStatus>(it.jsonObject["quick_status"]!!)
-                    }?.filter { it.hasData() } ?: return@use
-                    transaction {
-                        ItemsTable.batchInsert(items) {
-                            this[ItemsTable.itemId] = transformHypixelBazaarToNEUItemId(it.productId)
-                            this[ItemsTable.time] = now
-                            this[ItemsTable.buyPrice] = it.buyPrice.roundToDecimals(1)
-                            this[ItemsTable.sellPrice] = it.sellPrice.roundToDecimals(1)
-                        }
+                transaction {
+                    ItemsTable.batchInsert(items.asIterable()) {
+                        this[ItemsTable.itemId] = it.key
+                        this[ItemsTable.time] = it.value.time
+                        this[ItemsTable.buyPrice] = it.value.b.roundToDecimals(1)
+                        this[ItemsTable.sellPrice] = it.value.s?.roundToDecimals(1)
                     }
-                    println("Added ${items.size} items from the bazaar.")
                 }
+                println("Added ${items.size} items.")
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -139,6 +147,10 @@ data class ItemData(val b: Double, val s: Double? = null)
 
 @Serializable(with = LowestBinResponseSerializer::class)
 data class LowestBinResponse(val items: List<Pair<String, Double>>)
+
+data class ItemObject(val time: Instant, val b: Double, val s: Double? = null) {
+    constructor(time: Long, b: Double, s: Double? = null) : this(Instant.fromEpochMilliseconds(time), b, s)
+}
 
 internal object LowestBinResponseSerializer : KSerializer<LowestBinResponse> {
     private val stringToJsonElementSerializer = MapSerializer(String.serializer(), JsonElement.serializer())
