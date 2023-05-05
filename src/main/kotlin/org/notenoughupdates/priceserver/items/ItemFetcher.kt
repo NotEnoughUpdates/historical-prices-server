@@ -16,6 +16,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
@@ -87,7 +88,7 @@ object ItemFetcher {
 
         timer.scheduleAtFixedRate(10000, config.deleteTime.minutes.inWholeMilliseconds) {
             val amountDeleted = transaction {
-                ItemsTable.deleteWhere { time greaterEq Clock.System.now().plus(config.retentionTime.days) }
+                ItemsTable.deleteWhere { time lessEq Clock.System.now().minus(config.retentionTime.days) }
             }
             println("Deleted $amountDeleted rows of old data.")
         }
