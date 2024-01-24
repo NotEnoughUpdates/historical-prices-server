@@ -41,7 +41,7 @@ val config: ConfigData by lazy {
         env("POSTGRES_USER"),
         env("POSTGRES_USER"),
         env("POSTGRES_PASSWORD"),
-        2,
+        5,
         60,
         30,
         "07:00"
